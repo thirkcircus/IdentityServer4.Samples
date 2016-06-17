@@ -36,6 +36,22 @@ namespace Host.Configuration
                         StandardScopes.Profile.Name,
                         "api1"
                     }
+                },
+                new Client
+                {
+                    ClientId = "client",
+                    ClientName = "Console Client Credentials",
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+
+                    ClientSecrets = new List<Secret>
+                    {
+                        new Secret("secret".Sha256())
+                    },
+
+                    AllowedScopes = new List<string>
+                    {
+                        "api1"
+                    }
                 }
             };
         }
