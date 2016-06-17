@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace SampleApi
@@ -17,12 +18,21 @@ namespace SampleApi
 
             services.AddWebEncoders();
             services.AddCors();
+            services.AddDistributedMemoryCache();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
+            Func<string, LogLevel, bool> filter = (scope, level) => 
+                scope.StartsWith("Microsoft.AspNetCore.Authentication") || 
+                scope.StartsWith("Microsoft.AspNetCore.Authorization") ||
+                scope.StartsWith("IdentityServer") ||
+                scope.StartsWith("IdentityModel") ||
+                level == LogLevel.Error ||
+                level == LogLevel.Critical;
+
+            loggerFactory.AddConsole(filter);
+            loggerFactory.AddDebug(filter);
 
             app.UseCors(policy =>
             {
@@ -40,6 +50,8 @@ namespace SampleApi
             {
                 Authority = "http://localhost:1941",
                 RequireHttpsMetadata = false,
+
+                EnableCaching = true,
 
                 ScopeName = "api1",
                 ScopeSecret = "secret",
